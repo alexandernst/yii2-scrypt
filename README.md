@@ -35,3 +35,5 @@ To derivate a key, use the following method:
 */
 \Yii::$app->Scrypt::calc("plain password", "salt", 1024, 8, 16, 64);
 ~~~
+
+This class passes all the tests specified [in the documentation](https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01).
