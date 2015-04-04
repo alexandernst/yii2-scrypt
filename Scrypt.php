@@ -3,13 +3,14 @@
 namespace alexandernst\Scrypt;
 
 use Yii;
+use yii\base\Component;
 use yii\base\ErrorException;
 
 /**
  * Scrypt key derivation function
  *
  * @author Alexander Nestorov <alexandernst@gmail.com>
- * @version 0.0.1
+ * @version 0.0.3
  */
 
 class Pbkdf2
@@ -106,8 +107,16 @@ class Hmac
  * @see	 https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01
  */
 
-class Scrypt
+class Scrypt extends Component
 {
+	public function __construct($config = array()) {
+		parent::__construct($config);
+	}
+
+	public function init() {
+		parent::init();
+	}
+
 	/**
 	 * Execute the scrypt algorithm
 	 *
