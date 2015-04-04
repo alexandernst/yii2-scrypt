@@ -1,8 +1,9 @@
 <?php
 
-namespace alexandernst\Scrypt
+namespace alexandernst\Scrypt;
 
 use Yii;
+use yii\base\ErrorException;
 
 /**
  * Scrypt key derivation function
@@ -16,18 +17,18 @@ class Pbkdf2
 	/**
 	 * Generate the new key
 	 *
-	 * @param  string  $hash		The hash algorithm to be used by HMAC
-	 * @param  string  $password	The source password/key
-	 * @param  string  $salt		Salt
-	 * @param  int $iterations	  The number of iterations
-	 * @param  int $length		  The output size
-	 * @throws Exception
+	 * @param string $hash The hash algorithm to be used by HMAC
+	 * @param string $password The source password/key
+	 * @param string $salt Salt
+	 * @param int $iterations The number of iterations
+	 * @param int $length The output size
+	 * @throws \yii\base\ErrorException
 	 * @return string
 	 */
 	public static function calc($hash, $password, $salt, $iterations, $length)
 	{
 		if (!Hmac::isSupported($hash)) {
-			throw new Exception("The hash algorithm $hash is not supported by " . __CLASS__);
+			throw new ErrorException("The hash algorithm $hash is not supported by " . __CLASS__);
 		}
 		$num	= ceil($length / Hmac::getOutputSize($hash, Hmac::OUTPUT_BINARY));
 		$result = '';
@@ -55,21 +56,21 @@ class Hmac
 	 * algorithm, the data to compute MAC of, and an output format of String,
 	 * or Binary.
 	 *
-	 * @param  string   $key
-	 * @param  string   $hash
-	 * @param  string   $data
-	 * @param  bool	 $output
-	 * @throws Exception
+	 * @param string $key
+	 * @param string $hash
+	 * @param string $data
+	 * @param bool $output
+	 * @throws \yii\base\ErrorException
 	 * @return string
 	 */
 
 	public static function compute($key, $hash, $data, $output = self::OUTPUT_STRING)
 	{
 		if (empty($key)) {
-			throw new Exception('Provided key is null or empty');
+			throw new ErrorException('Provided key is null or empty');
 		}
 		if (!$hash || !static::isSupported($hash)) {
-			throw new Exception("Hash algorithm is not supported on this PHP installation; provided '{$hash}'");
+			throw new ErrorException("Hash algorithm is not supported on this PHP installation; provided '{$hash}'");
 		}
 		return hash_hmac($hash, $data, $key, $output);
 	}
@@ -77,8 +78,8 @@ class Hmac
 	/**
 	 * Get the output size according to the hash algorithm and the output format
 	 *
-	 * @param  string  $hash
-	 * @param  bool $output
+	 * @param string $hash
+	 * @param bool $output
 	 * @return int
 	 */
 	public static function getOutputSize($hash, $output = self::OUTPUT_STRING)
@@ -89,7 +90,7 @@ class Hmac
 	/**
 	 * Is the hash algorithm supported?
 	 *
-	 * @param  string $algorithm
+	 * @param string $algorithm
 	 * @return bool
 	 */
 	public static function isSupported($algorithm)
@@ -101,8 +102,8 @@ class Hmac
 /**
  * Scrypt key derivation function
  *
- * @see	  http://www.tarsnap.com/scrypt.html
- * @see	  https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01
+ * @see	 http://www.tarsnap.com/scrypt.html
+ * @see	 https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01
  */
 
 class Scrypt
@@ -110,25 +111,25 @@ class Scrypt
 	/**
 	 * Execute the scrypt algorithm
 	 *
-	 * @param  string $password
-	 * @param  string $salt
-	 * @param  int $n CPU/Memory cost parameter, must be larger than 1, a power of 2 and less than 2^(128 * r / 8)
-	 * @param  int $r Block size
-	 * @param  int $p Parallelization parameter, a positive integer less than or equal to ((2^32-1) * hLen) / MFLen where hLen is 32 and MFlen is 128 * r
-	 * @param  int $length Length of the output key
-	 * @throws Exception
+	 * @param string $password
+	 * @param string $salt
+	 * @param int $n CPU/Memory cost parameter, must be larger than 1, a power of 2 and less than 2^(128 * r / 8)
+	 * @param int $r Block size
+	 * @param int $p Parallelization parameter, a positive integer less than or equal to ((2^32-1) * hLen) / MFLen where hLen is 32 and MFlen is 128 * r
+	 * @param int $length Length of the output key
+	 * @throws \yii\base\ErrorException
 	 * @return string
 	 */
 	public static function calc($password, $salt, $n, $r, $p, $length)
 	{
 		if ($n == 0 || ($n & ($n - 1)) != 0) {
-			throw new Exception("N must be > 0 and a power of 2");
+			throw new ErrorException("N must be > 0 and a power of 2");
 		}
 		if ($n > PHP_INT_MAX / 128 / $r) {
-			throw new Exception("Parameter n is too large");
+			throw new ErrorException("Parameter n is too large");
 		}
 		if ($r > PHP_INT_MAX / 128 / $p) {
-			throw new Exception("Parameter r is too large");
+			throw new ErrorException("Parameter r is too large");
 		}
 
 		$b = Pbkdf2::calc('sha256', $password, $salt, 1, $p * 128 * $r);
@@ -144,11 +145,11 @@ class Scrypt
 	/**
 	 * scryptROMix
 	 *
-	 * @param  string $b input octet vector of length 128 * r octets
-	 * @param  int $n cpu/memory cost, must be larger than 1, a power of 2 and less than 2^(128 * r / 8)
-	 * @param  int $r block size
+	 * @param string $b Input octet vector of length 128 * r octets
+	 * @param int $n Cpu/memory cost, must be larger than 1, a power of 2 and less than 2^(128 * r / 8)
+	 * @param int $r Block size
 	 * @return string
-	 * @see	https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01#section-4
+	 * @see https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01#section-4
 	 */
 	private static function scryptROMix($b, $n, $r)
 	{
@@ -168,10 +169,10 @@ class Scrypt
 	/**
 	 * scryptBlockMix
 	 *
-	 * @param  string $b input vector of 2 * r 64-octet blocks
-	 * @param  int $r block size
+	 * @param string $b input vector of 2 * r 64-octet blocks
+	 * @param int $r block size
 	 * @return string
-	 * @see	https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01#section-3
+	 * @see https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01#section-3
 	 */
 	private static function scryptBlockMix($b, $r)
 	{
@@ -211,10 +212,10 @@ class Scrypt
 	/**
 	 * Salsa 20/8 core (32 and 64 bit version)
 	 *
-	 * @param  string $b
+	 * @param string $b
 	 * @return string
-	 * @see	https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01#section-2
-	 * @see	http://cr.yp.to/salsa20.html
+	 * @see https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01#section-2
+	 * @see http://cr.yp.to/salsa20.html
 	 */
 	private static function salsa208($b)
 	{
@@ -225,22 +226,22 @@ class Scrypt
 
 		$x = $b32;
 		for ($i = 0; $i < 8; $i += 2) {
-			$x[ 4] ^= Scrypt::rotate($x[ 0], $x[12],  7);   $x[ 8] ^= Scrypt::rotate($x[ 4], $x[ 0],  9);
-			$x[12] ^= Scrypt::rotate($x[ 8], $x[ 4], 13);   $x[ 0] ^= Scrypt::rotate($x[12], $x[ 8], 18);
-			$x[ 9] ^= Scrypt::rotate($x[ 5], $x[ 1],  7);   $x[13] ^= Scrypt::rotate($x[ 9], $x[ 5],  9);
-			$x[ 1] ^= Scrypt::rotate($x[13], $x[ 9], 13);   $x[ 5] ^= Scrypt::rotate($x[ 1], $x[13], 18);
-			$x[14] ^= Scrypt::rotate($x[10], $x[ 6],  7);   $x[ 2] ^= Scrypt::rotate($x[14], $x[10],  9);
-			$x[ 6] ^= Scrypt::rotate($x[ 2], $x[14], 13);   $x[10] ^= Scrypt::rotate($x[ 6], $x[ 2], 18);
-			$x[ 3] ^= Scrypt::rotate($x[15], $x[11],  7);   $x[ 7] ^= Scrypt::rotate($x[ 3], $x[15],  9);
-			$x[11] ^= Scrypt::rotate($x[ 7], $x[ 3], 13);   $x[15] ^= Scrypt::rotate($x[11], $x[ 7], 18);
-			$x[ 1] ^= Scrypt::rotate($x[ 0], $x[ 3],  7);   $x[ 2] ^= Scrypt::rotate($x[ 1], $x[ 0],  9);
-			$x[ 3] ^= Scrypt::rotate($x[ 2], $x[ 1], 13);   $x[ 0] ^= Scrypt::rotate($x[ 3], $x[ 2], 18);
-			$x[ 6] ^= Scrypt::rotate($x[ 5], $x[ 4],  7);   $x[ 7] ^= Scrypt::rotate($x[ 6], $x[ 5],  9);
-			$x[ 4] ^= Scrypt::rotate($x[ 7], $x[ 6], 13);   $x[ 5] ^= Scrypt::rotate($x[ 4], $x[ 7], 18);
-			$x[11] ^= Scrypt::rotate($x[10], $x[ 9],  7);   $x[ 8] ^= Scrypt::rotate($x[11], $x[10],  9);
-			$x[ 9] ^= Scrypt::rotate($x[ 8], $x[11], 13);   $x[10] ^= Scrypt::rotate($x[ 9], $x[ 8], 18);
-			$x[12] ^= Scrypt::rotate($x[15], $x[14],  7);   $x[13] ^= Scrypt::rotate($x[12], $x[15],  9);
-			$x[14] ^= Scrypt::rotate($x[13], $x[12], 13);   $x[15] ^= Scrypt::rotate($x[14], $x[13], 18);
+			$x[ 4] ^= Scrypt::rotate($x[ 0], $x[12],  7);	$x[ 8] ^= Scrypt::rotate($x[ 4], $x[ 0],  9);
+			$x[12] ^= Scrypt::rotate($x[ 8], $x[ 4], 13);	$x[ 0] ^= Scrypt::rotate($x[12], $x[ 8], 18);
+			$x[ 9] ^= Scrypt::rotate($x[ 5], $x[ 1],  7);	$x[13] ^= Scrypt::rotate($x[ 9], $x[ 5],  9);
+			$x[ 1] ^= Scrypt::rotate($x[13], $x[ 9], 13);	$x[ 5] ^= Scrypt::rotate($x[ 1], $x[13], 18);
+			$x[14] ^= Scrypt::rotate($x[10], $x[ 6],  7);	$x[ 2] ^= Scrypt::rotate($x[14], $x[10],  9);
+			$x[ 6] ^= Scrypt::rotate($x[ 2], $x[14], 13);	$x[10] ^= Scrypt::rotate($x[ 6], $x[ 2], 18);
+			$x[ 3] ^= Scrypt::rotate($x[15], $x[11],  7);	$x[ 7] ^= Scrypt::rotate($x[ 3], $x[15],  9);
+			$x[11] ^= Scrypt::rotate($x[ 7], $x[ 3], 13);	$x[15] ^= Scrypt::rotate($x[11], $x[ 7], 18);
+			$x[ 1] ^= Scrypt::rotate($x[ 0], $x[ 3],  7);	$x[ 2] ^= Scrypt::rotate($x[ 1], $x[ 0],  9);
+			$x[ 3] ^= Scrypt::rotate($x[ 2], $x[ 1], 13);	$x[ 0] ^= Scrypt::rotate($x[ 3], $x[ 2], 18);
+			$x[ 6] ^= Scrypt::rotate($x[ 5], $x[ 4],  7);	$x[ 7] ^= Scrypt::rotate($x[ 6], $x[ 5],  9);
+			$x[ 4] ^= Scrypt::rotate($x[ 7], $x[ 6], 13);	$x[ 5] ^= Scrypt::rotate($x[ 4], $x[ 7], 18);
+			$x[11] ^= Scrypt::rotate($x[10], $x[ 9],  7);	$x[ 8] ^= Scrypt::rotate($x[11], $x[10],  9);
+			$x[ 9] ^= Scrypt::rotate($x[ 8], $x[11], 13);	$x[10] ^= Scrypt::rotate($x[ 9], $x[ 8], 18);
+			$x[12] ^= Scrypt::rotate($x[15], $x[14],  7);	$x[13] ^= Scrypt::rotate($x[12], $x[15],  9);
+			$x[14] ^= Scrypt::rotate($x[13], $x[12], 13);	$x[15] ^= Scrypt::rotate($x[14], $x[13], 18);
 		}
 		for ($i = 0; $i < 16; $i++) {
 			$t = $b32[$i] + $x[$i];
@@ -275,7 +276,7 @@ class Scrypt
 	/**
 	 * Test the crypto functions
 	 *
-	 * @throws Exception
+	 * @throws \yii\base\ErrorException
 	 */
 	public static function test()
 	{
@@ -303,7 +304,7 @@ class Scrypt
 		$x = self::salsa208($input);
 
 		if ($x !== $output) {
-			throw new Exception("Salsa 20/8 test failed.");
+			throw new ErrorException("Salsa 20/8 test failed.");
 		}
 
 		/*****************************************************************************\
@@ -340,7 +341,7 @@ class Scrypt
 		$x = self::scryptBlockMix($input, 1);
 
 		if ($x !== $output) {
-			throw new Exception("scryptBlockMix test failed.");
+			throw new ErrorException("scryptBlockMix test failed.");
 		}
 
 		/*****************************************************************************\
@@ -375,7 +376,7 @@ class Scrypt
 		$x = self::scryptROMix($input, 16, 1);
 
 		if ($x !== $output) {
-			throw new Exception("scryptROMix test failed.");
+			throw new ErrorException("scryptROMix test failed.");
 		}
 
 		/*****************************************************************************\
@@ -403,7 +404,7 @@ class Scrypt
 		$x2 = Pbkdf2::calc("sha256", "Password", "NaCl", 80000, 64);
 
 		if ($x !== $output || $x2 !== $output2) {
-			throw new Exception("PBKDF2 HMAC SHA 256 test failed.");
+			throw new ErrorException("PBKDF2 HMAC SHA 256 test failed.");
 		}
 
 		/*****************************************************************************\
@@ -447,7 +448,7 @@ class Scrypt
 		//$x4 = self::calc("pleaseletmein", "SodiumChloride", 1048576, 8, 1, 64);
 
 		if ($x !== $output || $x2 !== $output2 /*&& $x3 === $output3 && $x4 === $output4*/) {
-			throw new Exception("Scrypt test failed.");
+			throw new ErrorException("Scrypt test failed.");
 		}
 	}
 }
