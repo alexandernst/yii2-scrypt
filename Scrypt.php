@@ -10,7 +10,7 @@ use yii\base\ErrorException;
  * Scrypt key derivation function
  *
  * @author Alexander Nestorov <alexandernst@gmail.com>
- * @version 0.0.3
+ * @version 0.0.4
  */
 
 class Pbkdf2

@@ -5,7 +5,7 @@ Scrypt key derivation function for Yii2
 To use it just require this extension in your composer.json file:
 
 ~~~
-"alexandernst/yii2-scrypt": "0.0.3",
+"alexandernst/yii2-scrypt": "0.0.4",
 ~~~
 
 And then add it to your components configuration in Yii2:
@@ -33,7 +33,7 @@ To derivate a key, use the following method:
 * @throws Exception
 * @return string
 */
-\Yii::$app->Scrypt::calc("plain password", "salt", 1024, 8, 16, 64);
+echo bin2hex(\Yii::$app->Scrypt->calc("plain password", "salt", 8, 8, 16, 32));
 ~~~
 
 This class passes all the tests specified [in the documentation](https://tools.ietf.org/html/draft-josefsson-scrypt-kdf-01).
