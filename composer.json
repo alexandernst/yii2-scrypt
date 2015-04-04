@@ -1,0 +1,21 @@
+{
+	"name": "alexandernst/yii2-scrypt",
+	"description": "Scrypt key derivation function for Yii2",
+	"type": "yii2-extension",
+	"keywords": ["yii2","extension","scrypt","pbkdf2","hmac","salsa208","key derivation","encryption"],
+	"license": "GNU General Public License v3",
+	"authors": [
+		{
+			"name": "Alexander Nestorov",
+			"email": "alexandernst@gmail.com"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"alexandernst\\Scrypt\\": ""
+		}
+	},
+	"require": {
+		"yiisoft/yii2": "*"
+	}
+}
