@@ -5,7 +5,7 @@ Scrypt key derivation function for Yii2
 To use it just require this extension in your composer.json file:
 
 ~~~
-"alexandernst/yii2-scrypt": "0.0.1",
+"alexandernst/yii2-scrypt": "0.0.2",
 ~~~
 
 And then add it to your components configuration in Yii2:
